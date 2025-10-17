@@ -1,0 +1,44 @@
+
+# Cloud BI Stack - Environment Files (NEVER COMMIT)
+.env.compose
+.env
+.env.*
+!.env.local.template
+services/bi_api/.env
+apps/web/.env.local
+
+# AWS Credentials (NEVER COMMIT)
+*.csv
+*credentials*.csv
+*accessKeys*.csv
+.aws/
+
+# Python virtual environments
+.venv/
+venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+
+# Build artifacts
+*.egg-info/
+__pycache__/
+*.pyc
+*.pyo
+dist/
+build/
+
+# Data files
+data/raw/*.xlsx
+data/warehouse.duckdb
+data/warehouse.duckdb.wal
+
+# Traces
+.traces/

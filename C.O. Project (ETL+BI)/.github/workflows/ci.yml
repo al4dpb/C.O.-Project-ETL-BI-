@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .
+
+    - name: Lint with ruff
+      run: |
+        ruff check etl/ tests/
+
+    - name: Check formatting with black
+      run: |
+        black --check etl/ tests/
+
+    - name: Run ingestion
+      run: |
+        python -m etl.ingest_excel
+
+    - name: Validate bronze
+      run: |
+        python -m etl.quality
+
+    - name: Run dbt models
+      run: |
+        cd warehouse/dbt
+        dbt run
+        dbt test
+
+    - name: Export gold tables
+      run: |
+        python -m etl.export_gold
+
+    - name: Run pytest
+      run: |
+        pytest -v

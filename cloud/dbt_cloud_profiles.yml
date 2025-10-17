@@ -1,0 +1,25 @@
+# dbt profiles for MotherDuck cloud warehouse
+# Usage: dbt run --profiles-dir ../../cloud --profile co_profile --target prod
+
+co_profile:
+  target: prod
+  outputs:
+    prod:
+      type: duckdb
+      path: "md:?motherduck_token={{ env_var('MOTHERDUCK_TOKEN') }}"
+      schema: co_gold
+      threads: 8
+      extensions:
+        - httpfs
+        - parquet
+      external_root: "s3://co-data-prod/gold/"
+
+    dev:
+      type: duckdb
+      path: "md:?motherduck_token={{ env_var('MOTHERDUCK_TOKEN') }}"
+      schema: co_dev
+      threads: 4
+      extensions:
+        - httpfs
+        - parquet
+      external_root: "s3://co-data-dev/gold/"

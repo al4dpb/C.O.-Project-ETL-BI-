@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+env/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Data (exclude all generated data)
+data/bronze/
+data/silver/
+data/gold/
+data/warehouse.duckdb*
+data/ingestion_log.csv
+data/models/
+data/raw/*.xlsx
+data/raw/*.xls
+
+# dbt
+warehouse/dbt/target/
+warehouse/dbt/dbt_packages/
+warehouse/dbt/logs/
+warehouse/dbt/.user.yml
+
+# Environment
+.env
+
+# OS
+.DS_Store
+*.tmp

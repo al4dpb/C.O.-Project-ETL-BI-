@@ -1,0 +1,157 @@
+version: 2
+
+models:
+  # Staging (V2 with as_of_month)
+  - name: stg_dashboard_monthly
+    description: "Staging view of monthly dashboard metrics"
+    columns:
+      - name: as_of_month
+        description: "Ingestion month (YYYY-MM)"
+        tests:
+          - not_null
+      - name: month
+        description: "Month of metrics"
+        tests:
+          - not_null
+      - name: rent_base
+        description: "Base rent for the month"
+        tests:
+          - not_null
+      - name: collected
+        description: "Rent collected"
+        tests:
+          - not_null
+      - name: leased_sqft
+        description: "Total square feet leased"
+        tests:
+          - not_null
+
+  - name: stg_expenses_monthly
+    description: "Staged monthly expenses (V2)"
+    columns:
+      - name: as_of_month
+        tests:
+          - not_null
+      - name: item
+        tests:
+          - not_null
+
+  - name: stg_lease_rate
+    description: "Staging view of lease/rate snapshot"
+    columns:
+      - name: as_of_month
+        description: "Ingestion month (YYYY-MM)"
+        tests:
+          - not_null
+      - name: suite_id
+        description: "Unique suite identifier"
+        tests:
+          - not_null
+      - name: building
+        description: "Building A or B"
+        tests:
+          - accepted_values:
+              values: ['A', 'B', null]
+      - name: sqft
+        description: "Square footage of suite"
+        tests:
+          - not_null
+
+  # Marts
+  - name: dim_suite
+    description: "Suite dimension"
+    columns:
+      - name: suite_id
+        description: "Unique suite identifier"
+        tests:
+          - not_null
+          - unique
+
+  - name: dim_tenant
+    description: "Tenant dimension"
+    columns:
+      - name: tenant_id
+        description: "Unique tenant hash"
+        tests:
+          - not_null
+          - unique
+
+  - name: fact_rent_monthly
+    description: "Monthly rent collection facts"
+    columns:
+      - name: month
+        description: "Month of metrics"
+        tests:
+          - not_null
+      - name: collection_rate_pct
+        description: "Percentage of rent collected"
+
+  - name: fact_expense_monthly
+    description: "Monthly expense facts (V2)"
+    columns:
+      - name: as_of_month
+        tests:
+          - not_null
+      - name: expense_category
+        tests:
+          - accepted_values:
+              values: ['fixed', 'variable', 'other']
+
+  # Gold
+  - name: prop_kpi_monthly
+    description: "Property-level monthly KPIs (V2 with NOI)"
+    columns:
+      - name: as_of_month
+        tests:
+          - not_null
+      - name: month
+        tests:
+          - not_null
+      - name: occupancy_pct
+        description: "Occupancy percentage"
+      - name: noi_proto
+        description: "Net Operating Income (proto)"
+      - name: accounts_receivable
+        description: "Uncollected rent (AR)"
+
+  - name: building_kpi_monthly
+    description: "Building-level (A vs B) monthly KPIs"
+    columns:
+      - name: as_of_month
+        tests:
+          - not_null
+      - name: month
+        tests:
+          - not_null
+      - name: building
+        tests:
+          - accepted_values:
+              values: ['A', 'B']
+
+  - name: kpi_windows
+    description: "Rolling window KPIs (3/6/9/12m)"
+    columns:
+      - name: end_month
+        tests:
+          - not_null
+      - name: window_size
+        tests:
+          - accepted_values:
+              values: ['3m', '6m', '9m', '12m']
+
+snapshots:
+  - name: snap_lease_rate_scd2
+    description: "SCD2 snapshot of lease changes"
+    columns:
+      - name: suite_id
+        tests:
+          - not_null
+
+seeds:
+  - name: dim_calendar_month
+    description: "Calendar dimension"
+    columns:
+      - name: month_id
+        tests:
+          - unique
+          - not_null

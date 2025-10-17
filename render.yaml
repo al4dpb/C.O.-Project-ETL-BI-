@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: container-offices-api
+    env: docker
+    dockerfilePath: services/bi_api/Dockerfile
+    dockerContext: .
+    region: oregon
+    plan: starter
+    healthCheckPath: /v1/health
+    envVars:
+      - key: AWS_REGION
+        value: us-east-1
+      - key: S3_BUCKET
+        value: co-data-prod
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: MOTHERDUCK_TOKEN
+        sync: false

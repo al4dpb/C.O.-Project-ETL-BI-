@@ -1,0 +1,19 @@
+version: "3.9"
+
+services:
+  bi_api:
+    build:
+      context: .
+      dockerfile: services/bi_api/Dockerfile
+    container_name: co-bi-api
+    ports:
+      - "8080:8080"
+    environment:
+      AWS_REGION: ${AWS_REGION}
+      S3_BUCKET: ${S3_BUCKET}
+      MOTHERDUCK_TOKEN: ${MOTHERDUCK_TOKEN}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+    volumes:
+      - ./C.O. Project (ETL+BI)/sql_queries:/app/sql_queries:ro
+    restart: unless-stopped

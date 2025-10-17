@@ -1,0 +1,31 @@
+# dbt profiles for cloud deployment (MotherDuck)
+# Copy to ~/.dbt/profiles.yml or set DBT_PROFILES_DIR
+
+container_offices:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "md:co_warehouse?motherduck_token={{ env_var('MOTHERDUCK_TOKEN') }}"
+      schema: main
+      threads: 4
+      extensions:
+        - httpfs
+        - parquet
+      settings:
+        s3_region: us-east-1
+        s3_access_key_id: "{{ env_var('AWS_ACCESS_KEY_ID') }}"
+        s3_secret_access_key: "{{ env_var('AWS_SECRET_ACCESS_KEY') }}"
+
+    prod:
+      type: duckdb
+      path: "md:co_warehouse_prod?motherduck_token={{ env_var('MOTHERDUCK_TOKEN') }}"
+      schema: main
+      threads: 8
+      extensions:
+        - httpfs
+        - parquet
+      settings:
+        s3_region: us-east-1
+        s3_access_key_id: "{{ env_var('AWS_ACCESS_KEY_ID') }}"
+        s3_secret_access_key: "{{ env_var('AWS_SECRET_ACCESS_KEY') }}"
