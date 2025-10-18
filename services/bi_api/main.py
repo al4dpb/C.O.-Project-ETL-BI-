@@ -29,6 +29,32 @@ app.add_middleware(
 # SQL queries directory
 SQL_QUERIES_DIR = Path("/app/sql_queries")
 
+# Allowed queries with both friendly aliases and numbered names
+ALLOWED_QUERIES = {
+    # Friendly aliases
+    "property_overview":       "01_property_overview.sql",
+    "revenue_trends":          "02_revenue_trends.sql",
+    "building_comparison":     "03_building_comparison.sql",
+    "vacant_suites":           "04_vacant_suites.sql",
+    "tenant_roster":           "05_tenant_roster.sql",
+    "occupancy_history":       "06_occupancy_history.sql",
+    "revenue_by_building":     "07_revenue_by_building.sql",
+    "kpi_summary":             "08_kpi_summary.sql",
+    "collection_analysis":     "09_collection_analysis.sql",
+    "custom_analysis":         "10_custom_analysis.sql",
+    # Numbered names (keep these too)
+    "01_property_overview":    "01_property_overview.sql",
+    "02_revenue_trends":       "02_revenue_trends.sql",
+    "03_building_comparison":  "03_building_comparison.sql",
+    "04_vacant_suites":        "04_vacant_suites.sql",
+    "05_tenant_roster":        "05_tenant_roster.sql",
+    "06_occupancy_history":    "06_occupancy_history.sql",
+    "07_revenue_by_building":  "07_revenue_by_building.sql",
+    "08_kpi_summary":          "08_kpi_summary.sql",
+    "09_collection_analysis":  "09_collection_analysis.sql",
+    "10_custom_analysis":      "10_custom_analysis.sql",
+}
+
 
 def _conn():
     """
@@ -82,15 +108,24 @@ def execute_query(query_name: str, request: QueryRequest = QueryRequest()):
     Execute a named SQL query from sql_queries directory
 
     Args:
-        query_name: Name of SQL file (without .sql extension)
+        query_name: Name of SQL file (without .sql extension) or friendly alias
         request: Optional query parameters for parameterized queries
     """
-    sql_file = SQL_QUERIES_DIR / f"{query_name}.sql"
+    # Check if query_name is in allowed queries (either alias or numbered name)
+    if query_name not in ALLOWED_QUERIES:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Query '{query_name}' not found. Available queries: {list(ALLOWED_QUERIES.keys())}"
+        )
+
+    # Get the actual SQL filename
+    sql_filename = ALLOWED_QUERIES[query_name]
+    sql_file = SQL_QUERIES_DIR / sql_filename
 
     if not sql_file.exists():
         raise HTTPException(
             status_code=404,
-            detail=f"Query '{query_name}' not found. Available queries: {[f.stem for f in SQL_QUERIES_DIR.glob('*.sql')]}"
+            detail=f"SQL file '{sql_filename}' not found on disk"
         )
 
     # Read SQL query
@@ -129,11 +164,10 @@ def execute_query(query_name: str, request: QueryRequest = QueryRequest()):
 
 @app.get("/v1/queries")
 def list_queries():
-    """List all available SQL queries"""
-    queries = [f.stem for f in SQL_QUERIES_DIR.glob("*.sql")]
+    """List all available SQL queries (both friendly aliases and numbered names)"""
     return {
-        "queries": sorted(queries),
-        "count": len(queries)
+        "queries": list(ALLOWED_QUERIES.keys()),
+        "count": len(ALLOWED_QUERIES)
     }
 
 
